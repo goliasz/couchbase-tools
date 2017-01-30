@@ -30,19 +30,23 @@ def convert_save():
     title = reader.fieldnames
     for row in reader:
       jrow = {title[i]:row[title[i]] for i in range(len(title))}
-      hash_object = hashlib.sha1(json.dumps(jrow))
-      key = str(hash_object.hexdigest())
+      key = str(counter)
+      if args.key == "hash":
+        hash_object = hashlib.sha1(json.dumps(jrow))
+        key = str(hash_object.hexdigest())
       targetBucket.upsert(key=key,value=jrow)
-      if counter % 1000 == 0:
-        print counter      
+      #if counter % 1000 == 0:
+      #  print counter      
 
 if __name__ == '__main__':
   parser = argparse.ArgumentParser(description="CSV 2 Couchbase")
   parser.add_argument('--couchbase', default="couchbase://localhost/targetbucket")
   parser.add_argument('--csvfile', default="source.csv")
+  parser.add_argument('--key', default="counter")
 
   args = parser.parse_args()
   print "couchbase:",args.couchbase
   print "source csv:",args.csvfile
+  print "key:",args.key,"Possible: counter, hash"
 
   convert_save()
