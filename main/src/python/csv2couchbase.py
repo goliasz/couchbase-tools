@@ -24,19 +24,20 @@ def convert_save():
   print "convert_save"
   targetBucket = Bucket(args.couchbase)
   csv_rows = []
-  counter = 1
+  counter = 0
   with open(args.csvfile) as csvfile:
     reader = csv.DictReader(csvfile)
     title = reader.fieldnames
     for row in reader:
+      counter += 1
       jrow = {title[i]:row[title[i]] for i in range(len(title))}
       key = str(counter)
       if args.key == "hash":
         hash_object = hashlib.sha1(json.dumps(jrow))
         key = str(hash_object.hexdigest())
       targetBucket.upsert(key=key,value=jrow)
-      #if counter % 1000 == 0:
-      #  print counter      
+      if counter % 1000 == 0:
+        print counter      
 
 if __name__ == '__main__':
   parser = argparse.ArgumentParser(description="CSV 2 Couchbase")
